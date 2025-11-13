@@ -15,7 +15,7 @@ export function LoginForm() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Senha</Label>
                 <Input id="password" type="password" placeholder="*****" required />
               </div>
             </div>
