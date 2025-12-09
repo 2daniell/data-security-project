@@ -1,0 +1,13 @@
+<svg
+  width="120"
+  height="180"
+  viewBox="0 0 120 180"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect width="120" height="180" rx="6" fill="#e5e7eb"/>
+  <rect x="20" y="40" width="80" height="12" rx="2" fill="#cbd5e1"/>
+  <rect x="20" y="70" width="70" height="10" rx="2" fill="#d1d5db"/>
+  <rect x="20" y="95" width="60" height="10" rx="2" fill="#d1d5db"/>
+  <rect x="20" y="140" width="50" height="8" rx="2" fill="#cbd5e1"/>
+</svg>

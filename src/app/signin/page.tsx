@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
-export default function SignUp() {
+export default function SignIn() {
 
     return (
         <div className="flex min-h-screen bg-background">
@@ -13,21 +13,11 @@ export default function SignUp() {
                 <div className="w-full max-w-md">
                     <Card>
                         <CardHeader className="flex flex-col items-center">
-                            <CardTitle className="text-2xl font-bold">Cadastro</CardTitle>
-                            <CardDescription>Preencha os dados abaixo para criar sua conta</CardDescription>
+                            <CardTitle className="text-2xl font-bold">Bem-vindo de volta</CardTitle>
+                            <CardDescription>Digite suas credenciais para acessar sua conta</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <form className="space-y-4">
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="name">Nome completo</Label>
-                                    <Input
-                                        id="name"
-                                        type="text"
-                                        placeholder="Daniel Alves"
-                                        required
-                                    />
-                                </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="email">Email</Label>
@@ -43,16 +33,6 @@ export default function SignUp() {
                                     <Label htmlFor="password">Senha</Label>
                                     <Input
                                         id="password"
-                                        type="password"
-                                        placeholder="••••••••"
-                                        required
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="confirmPassword">Confirmar senha</Label>
-                                    <Input
-                                        id="confirmPassword"
                                         type="password"
                                         placeholder="••••••••"
                                         required
