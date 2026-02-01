@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 
 const navigation = [
   { name: "Dashboard", href: "/app/dashboard", icon: Home },
-  { name: "Catálogo", href: "/", icon: BookOpen },
+  { name: "Catálogo", href: "/app/books", icon: BookOpen },
   { name: "Historico", href: "/", icon: Activity },
   { name: "Configurações", href: "/", icon: Settings },
 ]
@@ -34,7 +34,7 @@ export function Sidebar({ onItemClick }: SidebarProps) {
             return (
                 <Link
                     key={item.name}
-                    href={"#"}
+                    href={item.href}
                     onClick={onItemClick}
                     className={cn(
                         "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
