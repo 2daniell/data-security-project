@@ -35,11 +35,6 @@ export default function BooksPage() {
     loadBooks();
   };
 
-  const handleCancel = () => {
-    setShowForm(false);
-    setEditingBook(null);
-  };
-
   const handleEdit = (book: any) => {
     setEditingBook(book);
     setShowForm(true);
@@ -54,16 +49,14 @@ export default function BooksPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Gerenciamento de Livros</h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground">
             Cadastre, edite e gerencie os livros da biblioteca
           </p>
         </div>
+
         {!showForm && (
-          <Button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="h-4 w-4 mr-2" />
             Novo Livro
           </Button>
         )}
@@ -74,15 +67,16 @@ export default function BooksPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleCancel}
             className="absolute right-0 -top-2"
+            onClick={() => setShowForm(false)}
           >
             <X className="h-4 w-4" />
           </Button>
+
           <BookForm
             book={editingBook}
             onSuccess={handleFormSuccess}
-            onCancel={handleCancel}
+            onCancel={() => setShowForm(false)}
           />
         </div>
       )}

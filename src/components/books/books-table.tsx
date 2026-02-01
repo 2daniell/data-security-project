@@ -25,7 +25,7 @@ export function BooksTable({ books, onEdit, onRefresh }: BooksTableProps) {
   const [deleting, setDeleting] = useState<number | null>(null);
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Tem certeza que deseja deletar este livro?")) return;
+    if (!confirm("Tem certeza que deseja excluir este livro?")) return;
 
     setDeleting(id);
     try {
@@ -46,7 +46,7 @@ export function BooksTable({ books, onEdit, onRefresh }: BooksTableProps) {
       if (result.data?.success) {
         onRefresh?.();
       }
-    } catch (err) {
+    } catch {
       console.error("Erro ao desativar livro");
     }
   };
@@ -66,78 +66,45 @@ export function BooksTable({ books, onEdit, onRefresh }: BooksTableProps) {
         <table className="w-full">
           <thead className="bg-muted border-b">
             <tr>
-              <th className="text-left px-4 py-3 text-sm font-semibold">
-                Título
-              </th>
-              <th className="text-left px-4 py-3 text-sm font-semibold">
-                Autor
-              </th>
-              <th className="text-left px-4 py-3 text-sm font-semibold">
-                Categoria
-              </th>
-              <th className="text-center px-4 py-3 text-sm font-semibold">
-                Total
-              </th>
-              <th className="text-center px-4 py-3 text-sm font-semibold">
-                Disponíveis
-              </th>
-              <th className="text-center px-4 py-3 text-sm font-semibold">
-                Status
-              </th>
-              <th className="text-right px-4 py-3 text-sm font-semibold">
-                Ações
-              </th>
+              <th className="px-4 py-3 text-left">Título</th>
+              <th className="px-4 py-3 text-left">Autor</th>
+              <th className="px-4 py-3 text-left">Categoria</th>
+              <th className="px-4 py-3 text-center">Total</th>
+              <th className="px-4 py-3 text-center">Disponíveis</th>
+              <th className="px-4 py-3 text-center">Status</th>
+              <th className="px-4 py-3 text-right">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {books.map((book) => (
-              <tr
-                key={book.id}
-                className="hover:bg-muted/50 transition-colors"
-              >
-                <td className="px-4 py-3 text-sm">{book.title}</td>
-                <td className="px-4 py-3 text-sm">{book.author}</td>
-                <td className="px-4 py-3 text-sm">{book.category}</td>
-                <td className="px-4 py-3 text-sm text-center">
-                  {book.totalCopies}
+              <tr key={book.id} className="hover:bg-muted/50">
+                <td className="px-4 py-3">{book.title}</td>
+                <td className="px-4 py-3">{book.author}</td>
+                <td className="px-4 py-3">{book.category}</td>
+                <td className="px-4 py-3 text-center">{book.totalCopies}</td>
+                <td className="px-4 py-3 text-center font-semibold">
+                  {book.availableCopies}
                 </td>
-                <td className="px-4 py-3 text-sm text-center">
-                  <span
-                    className={
-                      book.availableCopies > 0
-                        ? "text-green-600 font-semibold"
-                        : "text-red-600 font-semibold"
-                    }
-                  >
-                    {book.availableCopies}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm text-center">
+                <td className="px-4 py-3 text-center">
                   <Badge variant={book.isActive ? "default" : "secondary"}>
                     {book.isActive ? "Ativo" : "Inativo"}
                   </Badge>
                 </td>
-                <td className="px-4 py-3 text-sm">
+                <td className="px-4 py-3 text-right">
                   <div className="flex justify-end gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onEdit?.(book)}
-                    >
+                    <Button size="sm" variant="ghost" onClick={() => onEdit?.(book)}>
                       <Edit2 className="h-4 w-4" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDeactivate(book.id)}
-                    >
+
+                    <Button size="sm" variant="ghost" onClick={() => handleDeactivate(book.id)}>
                       <Book className="h-4 w-4" />
                     </Button>
+
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => handleDelete(book.id)}
                       disabled={deleting === book.id}
+                      onClick={() => handleDelete(book.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

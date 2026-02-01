@@ -7,6 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 
+/**
+ * Sanitização básica contra XSS
+ * Remove caracteres perigosos e espaços extras
+ */
+const sanitizeText = (value: string) =>
+  value.replace(/[<>]/g, "").trim();
+
 interface BookFormProps {
   book?: {
     id: number;
@@ -37,15 +44,40 @@ export function BookForm({ book, onSuccess, onCancel }: BookFormProps) {
       ...prev,
       [name]:
         name === "totalCopies" || name === "availableCopies"
-          ? parseInt(value)
-          : value,
+          ? Math.max(0, parseInt(value) || 0)
+          : sanitizeText(value),
     }));
+  };
+
+  /**
+   * Validação de regras de negócio
+   */
+  const validateForm = () => {
+    if (!formData.title || !formData.author || !formData.category) {
+      setError("Todos os campos de texto são obrigatórios");
+      return false;
+    }
+
+    if (formData.availableCopies > formData.totalCopies) {
+      setError("Cópias disponíveis não podem ser maiores que o total");
+      return false;
+    }
+
+    if (formData.title.length > 100) {
+      setError("Título excede o tamanho máximo permitido");
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+
+    if (!validateForm()) return;
+
+    setLoading(true);
 
     try {
       const result = book
@@ -60,8 +92,8 @@ export function BookForm({ book, onSuccess, onCancel }: BookFormProps) {
       } else {
         setError(result.data?.error || "Erro ao salvar livro");
       }
-    } catch (err) {
-      setError("Erro ao processar formulário");
+    } catch {
+      setError("Erro inesperado ao processar o formulário");
     } finally {
       setLoading(false);
     }
@@ -77,7 +109,7 @@ export function BookForm({ book, onSuccess, onCancel }: BookFormProps) {
             name="title"
             value={formData.title}
             onChange={handleChange}
-            placeholder="Digite o título do livro"
+            maxLength={100}
             required
           />
         </div>
@@ -89,7 +121,7 @@ export function BookForm({ book, onSuccess, onCancel }: BookFormProps) {
             name="author"
             value={formData.author}
             onChange={handleChange}
-            placeholder="Digite o nome do autor"
+            maxLength={100}
             required
           />
         </div>
@@ -101,7 +133,7 @@ export function BookForm({ book, onSuccess, onCancel }: BookFormProps) {
             name="category"
             value={formData.category}
             onChange={handleChange}
-            placeholder="Digite a categoria"
+            maxLength={50}
             required
           />
         </div>
@@ -113,9 +145,9 @@ export function BookForm({ book, onSuccess, onCancel }: BookFormProps) {
               id="totalCopies"
               name="totalCopies"
               type="number"
+              min={1}
               value={formData.totalCopies}
               onChange={handleChange}
-              min="1"
               required
             />
           </div>
@@ -126,15 +158,15 @@ export function BookForm({ book, onSuccess, onCancel }: BookFormProps) {
               id="availableCopies"
               name="availableCopies"
               type="number"
+              min={0}
               value={formData.availableCopies}
               onChange={handleChange}
-              min="0"
               required
             />
           </div>
         </div>
 
-        {error && <div className="text-sm text-red-500">{error}</div>}
+        {error && <p className="text-sm text-red-500">{error}</p>}
 
         <div className="flex gap-2">
           <Button type="submit" disabled={loading}>
