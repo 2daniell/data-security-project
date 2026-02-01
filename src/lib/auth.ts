@@ -1,23 +1,23 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { readFileSync } from "fs";
+import { importPKCS8, importSPKI, jwtVerify, SignJWT } from "jose";
 
-const SALT_ROUNDS = 10;
+const alg = "RS256";
 
-export async function hashPassword(password: string) {
-  return bcrypt.hash(password, SALT_ROUNDS);
+const privatePem = readFileSync("private.pem", "utf-8");
+const publicPem = readFileSync("public.pem", "utf-8");
+
+const privateKey = await importPKCS8(privatePem, alg);
+const publicKey = await importSPKI(publicPem, alg); 
+
+export async function sign(payload: any) {
+    return await new SignJWT(payload)
+        .setProtectedHeader({ alg: "RS256" })
+        .setIssuedAt()
+        .setExpirationTime("2h")
+        .sign(privateKey);
 }
 
-export async function verifyPassword(
-  password: string,
-  hash: string
-) {
-  return bcrypt.compare(password, hash);
-}
-
-export function generateJWT(userId: number) {
-  return jwt.sign(
-    { sub: userId },
-    process.env.JWT_SECRET!,
-    { expiresIn: "1d" }
-  );
+export async function verify(token: string) {
+    const { payload } = await jwtVerify(token, publicKey, { algorithms: [alg] });
+    return payload;
 }
