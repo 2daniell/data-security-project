@@ -34,6 +34,12 @@ export default function Books({ books }: { books: Book[] }) {
     const { execute: executeCreate } = useAction(createBook, {
         onSuccess: () => {
             setModalOpen(false)
+            setFormData({
+            title: "",
+            author: "",
+            category: "",
+            copies: "",
+            })
         }
     })
 

@@ -4,7 +4,7 @@ import { adminActionClient } from "../safe-action";
 import { users } from "@/database/schemas/users.schema";
 import { loans } from "@/database/schemas/loan.schema";
 import { books } from "@/database/schemas/books.schema";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import z from "zod";
 import { revalidatePath } from "next/cache";
 import { createSystemLog } from "@/helper/logs.helper";
@@ -21,7 +21,10 @@ export const getUsers = adminActionClient.action(async() => {
     })
     .from(users)
     .where(eq(users.role, "default"))
-    .leftJoin(loans, eq(loans.userId, users.id))
+    .leftJoin(loans, and(
+        eq(loans.userId, users.id),
+        isNull(loans.returnDate)
+    ))
     .leftJoin(books, eq(books.id, loans.bookId))
 
     return result;
