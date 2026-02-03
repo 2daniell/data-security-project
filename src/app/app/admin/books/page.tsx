@@ -1,5 +1,11 @@
-export default function Books() {
+import { getAllBooks } from "@/actions/book/book.action";
+import Books from "@/components/book/book-page";
+
+export default async  function BooksPage() {
+
+    const data = (await getAllBooks()).data ?? []
+
     return (
-        <div>LIVROSSSS</div>
+        <Books books={data} />
     )
 }

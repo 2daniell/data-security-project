@@ -7,6 +7,7 @@ import { books } from "@/database/schemas/books.schema";
 import { eq } from "drizzle-orm";
 import z from "zod";
 import { revalidatePath } from "next/cache";
+import { createSystemLog } from "@/helper/logs.helper";
 
 export const getUsers = adminActionClient.action(async() => {
 
@@ -33,6 +34,12 @@ const DisableUserAccountSchema = z.object({
 export const disableUserAccount = adminActionClient.inputSchema(DisableUserAccountSchema).action(async({ parsedInput: { userId } }) => {
 
     await db.update(users).set({ isActive: false }).where(eq(users.id, userId));
+
+    await createSystemLog({
+        level: "info",
+        message: `Conta do usuario foi desativada | userId=${userId}`,
+    });
+
     revalidatePath("/app/admin/users")
 })
 
@@ -43,5 +50,11 @@ const EnableUserAccountSchema = z.object({
 export const enableUserAccount = adminActionClient.inputSchema(EnableUserAccountSchema).action(async({ parsedInput: { userId } }) => {
 
     await db.update(users).set({ isActive: true }).where(eq(users.id, userId));
+
+    await createSystemLog({
+        level: "info",
+        message: `Conta do usuario foi ativada | userId=${userId}`,
+    });
+
     revalidatePath("/app/admin/users")
 })

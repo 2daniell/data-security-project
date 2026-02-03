@@ -1,7 +1,11 @@
+"use client"
 import { AlertCircle, Calendar, CheckCircle2, Clock } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { BookCover } from "../book/book";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
+import { returnLoanAction } from "@/actions/loan/loan.action";
+import { useAction } from "next-safe-action/hooks";
+import { toast } from "sonner";
 
 type LoanStatus = "active" | "returned" | "overdue";
 type LoanStatusStyle = { label: string, icon: LucideIcon, className: string }
@@ -31,9 +35,24 @@ type Loan = {
     dueDate: Date,
     returnDate: Date | null,
     loanDate: Date,
+    status: LoanStatus
 }
 
 export default function Loans({ loans }: { loans: Loan[]} ) {
+
+    const { execute } = useAction(returnLoanAction, {
+        onSuccess: ({ data }) => {
+            toast.success(data.message, { position: "top-center" });
+        },
+        onError: ({ error }) => {
+            toast.error(error.serverError, { position: "top-center" });
+        }
+    })
+
+    const returnAction = async(loanId: number) => {
+        execute({ loanId })
+    }
+
     return (
         <div className="flex-1 flex flex-col h-full overflow-auto p-6 bg-[#eaeef4]">
             <div className="mb-6">
@@ -65,10 +84,10 @@ export default function Loans({ loans }: { loans: Loan[]} ) {
                         </tr>
                     </thead>
                     <tbody>
-                        {loans!.length > 0 ? (
-                            loans!.map((loan) => {
+                        {loans.length > 0 ? (
+                            loans.map((loan) => {
                             
-                                const status = statusConfig["active"]
+                                const status = statusConfig[loan.status]
                                 const StatusIcon = status.icon
                     
                                 return (
@@ -98,18 +117,18 @@ export default function Loans({ loans }: { loans: Loan[]} ) {
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-2 text-sm text-foreground">
                                                 <Calendar className="w-4 h-4 text-muted-foreground" />
-                                                {/* {formatDate(loan.borrowDate)} */}
+                                                {formatDate(loan.loanDate)}
                                             </div>
                                         </td>
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-2 text-sm text-foreground">
                                                 <Calendar className="w-4 h-4 text-muted-foreground" />
                                                 
-                                                {/* {loan.returnDate
+                                                {loan.returnDate
                                                     ? formatDate(loan.returnDate)
                                                     : formatDate(loan.dueDate)
-                                                } */}
-                                                {!loan.dueDate && (
+                                                }
+                                                {!loan.returnDate && (
                                                 <span className="text-xs text-muted-foreground">
                                                     (previsto)
                                                 </span>
@@ -128,10 +147,10 @@ export default function Loans({ loans }: { loans: Loan[]} ) {
                                             </span>
                                         </td>
                                         <td className="py-4 px-6">
-                                            {false && (
+                                            {loan.status !== "returned" && (
                                                 <button
-                                                    onClick={() => {}}
-                                                    className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors"
+                                                onClick={() => returnAction(loan.id)}
+                                                className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors"
                                                 >
                                                     Devolver
                                                 </button>

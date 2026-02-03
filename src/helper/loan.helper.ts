@@ -4,7 +4,7 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 
 export async function hasActiveLoan(userId: number): Promise<boolean> {
     const reuslt = await db.select({ id: loans.id }).from(loans).where(and(eq(loans.userId, userId), isNull(loans.returnDate))).limit(1);
-    return reuslt.length > 1;
+    return reuslt.length >= 1;
 }
 
 export async function getLastLoan(userId: number) {

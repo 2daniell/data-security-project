@@ -7,7 +7,9 @@ import { getBook } from "@/helper/book.helper";
 import { db } from "@/database/db";
 import { loans } from "@/database/schemas/loan.schema";
 import { books } from "@/database/schemas/books.schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
+import { createSystemLog } from "@/helper/logs.helper";
+import { revalidatePath } from "next/cache";
 
 const CreateLoanSchema = z.object({
     bookId: z.number("ID Invalido")
@@ -24,7 +26,8 @@ export const createLoan = authActionClient.inputSchema(CreateLoanSchema).action(
     }
 
     const lastLoan = await getLastLoan(userId);
-    if (lastLoan && lastLoan.id == bookId) {
+    console.log(lastLoan)
+    if (lastLoan && lastLoan.bookId == bookId) {
         throw new AppError("Você não pode pegar o mesmo livro em sequencia");
     }
 
@@ -51,6 +54,11 @@ export const createLoan = authActionClient.inputSchema(CreateLoanSchema).action(
         await tx.update(books).set({ availableCopies: book.availableCopies - 1 }).where(eq(books.id, bookId));
 
     })
+
+    await createSystemLog({
+        level: "info",
+        message: `Emprestimo realizado com sucesso | userId=${userId} | bookId=${bookId}`,
+    });
 
     return { sucess: true, message: "Emprestimo realizado com sucesso!" }
 })
@@ -79,3 +87,55 @@ export const getUserLoans = authActionClient.action(async({ ctx: {  userId } }) 
 
     return sanitized
 })
+
+const ReturnLoanSchema = z.object({
+    loanId: z.number().int().positive(),
+});
+
+export const returnLoanAction = authActionClient.inputSchema(ReturnLoanSchema).action(async ({ ctx: { userId}, parsedInput: { loanId } }) => {
+
+    const [loan] = await db
+    .select({
+    id: loans.id,
+    bookId: loans.bookId,
+    returnDate: loans.returnDate,
+    })
+    .from(loans)
+    .where(eq(loans.id, loanId))
+    .limit(1);
+
+    if (!loan) {
+        throw new AppError("Empréstimo não encontrado.");
+    }
+
+    if (loan.returnDate) {
+        throw new AppError("Este empréstimo já foi devolvido.");
+    }
+
+    
+    await db.transaction(async (tx) => {
+        
+        await tx
+        .update(loans)
+        .set({
+            returnDate: new Date(),
+        })
+        .where(eq(loans.id, loanId));
+
+        await tx
+        .update(books)
+        .set({
+            availableCopies: sql`${books.availableCopies} + 1`  
+        })
+        .where(eq(books.id, loan.bookId));
+    });
+
+    await createSystemLog({
+        level: "info",
+        message: `Livro devolvido com sucesso | loanId=${loanId} | bookId=${loan.bookId} | userId=${userId}`,
+    });
+
+    revalidatePath("/app/loans")
+
+    return { sucess: true, message: "Emprestimo devolvido com sucesso!" }
+});
