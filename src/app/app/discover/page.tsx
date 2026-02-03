@@ -2,7 +2,7 @@
 import { createLoan } from "@/actions/loan/loan.action"
 import { BookCard, BookCover } from "@/components/book/book"
 import { cn } from "@/lib/utils"
-import { ChevronRight, Heart, Star } from "lucide-react"
+import { Star } from "lucide-react"
 import { useAction } from "next-safe-action/hooks"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -156,7 +156,8 @@ export default function Discover() {
 			toast.success(data.message, { position: "top-center" } )
 		},
 		onError: ({ error }) => {
-			toast.error(error.serverError, { position: "top-center"})
+			console.log(JSON.stringify(error, null, 2));
+			toast.info(error.serverError, { position: "top-center"})
 		}
 	});
 
@@ -195,7 +196,7 @@ export default function Discover() {
 						<h2 className="text-xl font-bold text-foreground">Livros</h2>
 					</div>
 
-					<div className="flex gap-5 flex-wrap">
+					<div className="flex gap-5 flex-wrap select-none">
 						{allBooks.length > 0 ? (
 							allBooks.map((book) => (
 							<BookCard
@@ -203,7 +204,6 @@ export default function Discover() {
 								title={book.title}
 								author={book.author}
 								colorIndex={book.id}
-								selected={selectedBook.id === book.id}
 								onClick={() => setSelectedBook(book)}
 							/>
 							))

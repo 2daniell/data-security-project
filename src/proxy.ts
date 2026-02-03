@@ -13,6 +13,10 @@ export async function proxy(request: NextRequest) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-pathname', pathname);
 
+    if (isServerAction) {
+        return NextResponse.next();
+    }
+
     return NextResponse.next({ headers: requestHeaders  });
 }
 

@@ -14,7 +14,7 @@ export function BookCard({ title, author, colorIndex = 0, selected, onClick, siz
         <button
             onClick={onClick}
             className={cn(
-                "flex flex-col text-left transition-all",
+                "flex flex-col text-left transition-all cursor-pointer",
                 size === "normal" ? "w-40" : "w-[140px]"
             )}
             >

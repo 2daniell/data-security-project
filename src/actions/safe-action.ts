@@ -6,8 +6,9 @@ import { verify } from "@/lib/auth";
 
 export const actionClient = createSafeActionClient({
     handleServerError(e) {
+
         if (e instanceof AppError) {
-            //if (e.redirect) return redirect("/unauthorized");
+            if (e.redirect) return redirect("/unauthorized");
 
             return e.message;
         }

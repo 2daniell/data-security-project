@@ -5,12 +5,13 @@ import { users } from "@/database/schemas/users.schema";
 import { loans } from "@/database/schemas/loan.schema";
 import { books } from "@/database/schemas/books.schema";
 import { eq } from "drizzle-orm";
+import z from "zod";
+import { revalidatePath } from "next/cache";
 
 export const getUsers = adminActionClient.action(async() => {
 
-    console.log("OIII")
-
     const result = await db.select({
+        id: users.id,
         name: users.name,
         email: users.email,
         createdAt: users.createAt,
@@ -23,4 +24,24 @@ export const getUsers = adminActionClient.action(async() => {
     .leftJoin(books, eq(books.id, loans.bookId))
 
     return result;
+})
+
+const DisableUserAccountSchema = z.object({
+    userId: z.number("ID invalido!")
+});
+
+export const disableUserAccount = adminActionClient.inputSchema(DisableUserAccountSchema).action(async({ parsedInput: { userId } }) => {
+
+    await db.update(users).set({ isActive: false }).where(eq(users.id, userId));
+    revalidatePath("/app/admin/users")
+})
+
+const EnableUserAccountSchema = z.object({
+    userId: z.number("ID invalido!")
+});
+
+export const enableUserAccount = adminActionClient.inputSchema(EnableUserAccountSchema).action(async({ parsedInput: { userId } }) => {
+
+    await db.update(users).set({ isActive: true }).where(eq(users.id, userId));
+    revalidatePath("/app/admin/users")
 })

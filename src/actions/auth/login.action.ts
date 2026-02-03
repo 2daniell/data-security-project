@@ -24,6 +24,10 @@ export const login = actionClient
 
 		if (!user) throw new AppError("Email não cadastrado!");
 
+		if (!user.isActive) {
+			throw new AppError("Conta inativa!");
+		}
+
 		const passwordMatches = await verifyPassword(password, user.passwordHash);
 		if (!passwordMatches) throw new AppError("Senha invalida!");
 

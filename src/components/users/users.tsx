@@ -3,6 +3,9 @@ import { Calendar, Mail, MoreVertical, UserCheck, UserX } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Button } from "../ui/button"
 import { cn, formatDate } from "@/lib/utils"
+import { disableUserAccount, enableUserAccount } from "@/actions/users/users.action"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 const avatarColors = [
     "bg-blue-500",
@@ -18,6 +21,7 @@ function getFirstLetters(text: string) {
 }
 
 type User = {
+    id: number;
     name: string;
     email: string;
     createdAt: Date;
@@ -26,6 +30,9 @@ type User = {
 };
 
 export default function Users({ users }: { users: User[] }) {
+
+    const [openPopoverId, setOpenPopoverId] = useState<number | null>(null);
+
     return (
         <div className="flex-1 flex flex-col h-full overflow-auto p-6 bg-[#eaeef4]">
             <div className="mb-6">
@@ -111,7 +118,7 @@ export default function Users({ users }: { users: User[] }) {
                                             </span>
                                         </td>
                                         <td className="py-4 px-6">
-                                            <Popover>
+                                            <Popover open={openPopoverId === user.id} onOpenChange={(open) => setOpenPopoverId(open ? user.id : null)}>
                                                 <PopoverTrigger asChild>
                                                     <Button variant={"ghost"} size={"icon"}>
                                                         <MoreVertical className="w-5 h-5 text-muted-foreground" />
@@ -120,9 +127,13 @@ export default function Users({ users }: { users: User[] }) {
                                                 <PopoverContent className="w-42 p-2">
                                                     {user.isActive ? (
                                                         <Button
+                                                            type="button"
                                                             variant="ghost"
                                                             className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                            onClick={() => {}}
+                                                            onClick={async () => {
+                                                                await disableUserAccount({ userId: user.id })
+                                                                setOpenPopoverId(null)
+                                                            }}
                                                         >
                                                             <UserX className="w-4 h-4 mr-2" />
                                                             Desativar
@@ -131,7 +142,10 @@ export default function Users({ users }: { users: User[] }) {
                                                         <Button
                                                             variant="ghost"
                                                             className="w-full justify-start text-green-600 hover:text-green-700 hover:bg-green-50"
-                                                            onClick={() => {}}
+                                                            onClick={async () => {
+                                                                await enableUserAccount({ userId: user.id })
+                                                                setOpenPopoverId(null)
+                                                            }}
                                                         >
                                                             <UserCheck className="w-4 h-4 mr-2" />
                                                             Ativar
